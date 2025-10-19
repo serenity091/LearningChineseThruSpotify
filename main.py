@@ -32,7 +32,7 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 POLL_SEC = 2.0
 LRCLIB_TIMEOUT = 10
-ADD_TRANSLATION = True   # ✅ turn on translations
+ADD_TRANSLATION = True  
 # ──────────────────────────
 
 app = Flask(__name__)
@@ -122,7 +122,7 @@ def to_pinyin(line: str) -> str:
     py = lazy_pinyin(simp, style=Style.TONE, neutral_tone_with_five=True)
     return " ".join(tok for tok in py if tok.strip())
 
-# ───────── Argos Translate (offline) ─────────
+
 def get_argos_zh_en():
     """
     Return Argos translator zh->en if the model is installed, else None.
@@ -176,7 +176,7 @@ def parse_lrc(text: str) -> List[LrcLine]:
     return lines
 
 def enrich_with_pinyin_and_trans(lines: List[LrcLine]) -> List[LrcLine]:
-    # Always compute pinyin (offline)
+    # Always compute pinyin
     for ln in lines:
         ln.pinyin = to_pinyin(ln.text) or ""
 
@@ -190,7 +190,6 @@ def enrich_with_pinyin_and_trans(lines: List[LrcLine]) -> List[LrcLine]:
             ln.trans = ""
     return lines
 
-# ───────── state refresh ─────────
 def refresh_state():
     global state
     try:
@@ -236,14 +235,12 @@ def refresh_state():
             if synced.strip():
                 parsed = parse_lrc(synced)
             else:
-                # Fallback: build lines from plain lyrics so we still show pinyin/translation
                 parsed = [LrcLine(t=i, text=line.strip())
                           for i, line in enumerate((state.plain_lyrics or "").splitlines())
                           if line.strip()]
 
             state.lrc_lines = enrich_with_pinyin_and_trans(parsed)
 
-            # Helpful message if Argos not installed and we had CJK lines
             if ADD_TRANSLATION and all((ln.trans == "" for ln in state.lrc_lines)) \
                and any(is_cjk(ln.text) for ln in state.lrc_lines):
                 state.last_error = (state.last_error or "") + \
@@ -299,7 +296,7 @@ body {
   color:#e9e9ea;
   margin:0;
   height:100vh;
-  overflow:hidden; /* ✅ disable manual scrolling entirely */
+  overflow:hidden;
 }
 
 header {
@@ -311,13 +308,13 @@ header {
   border-bottom:1px solid #1f1f22;
 }
 .title { 
-  font-size: 28px;  /* increase from 18px to 28px */
-  font-weight: 700; /* make it a bit bolder if you want */
+  font-size: 28px; 
+  font-weight: 700; 
 }
 
 .subtitle { 
-  font-size: 18px;  /* increase from 14px to 18px */
-  opacity: 0.8;     /* make it slightly brighter */
+  font-size: 18px; 
+  opacity: 0.8;    
   margin-top: 6px; 
 }
 .err { color:#ff7070; font-size:14px; margin-top:8px; }
@@ -329,7 +326,7 @@ header {
   margin:0 auto;
   padding:20px;
   height:calc(100vh - 68px);
-  overflow:auto; /* ✅ allow auto-scroll only */
+  overflow:auto; 
   -ms-overflow-style:none;
   scrollbar-width:none;
 }
@@ -466,7 +463,7 @@ function highlightLoop(){
     if (!el) continue;
     if (i === currentIdx) {
       el.classList.add('active');
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' }); /* ✅ auto-scroll still works */
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
       el.classList.remove('active');
     }

@@ -1,3 +1,4 @@
 .cache
 .env
 lyrics/
+.DS_Store
